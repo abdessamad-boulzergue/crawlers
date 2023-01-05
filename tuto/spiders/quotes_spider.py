@@ -1,23 +1,45 @@
 import scrapy
-
+import re
+import json
+from bs4 import BeautifulSoup
 class QuotesSprider(scrapy.Spider):
 
     name = "quotes"
+    allowed_domains=["horecava.nl"]
+    page_url_pattern = "https://www.horecava.nl/leveranciers/page/{page}/"
+    max = 0
+    index = 1
     start_urls = [
-        'https://quotes.toscrape.com/page/1/',
-        'https://quotes.toscrape.com/page/2/',
+        page_url_pattern.format(page=1)
     ]
+
     def start_requests(self):
         for url in self.start_urls:
             yield scrapy.Request(url=url, callback=self.parse)
     
+    def getContacts(self , contacts):
+        pass
+
+
     def parse(self, response):
-        page = response.url.split("/")[-2]
-        filename = f'quotes-{page}.html'
-        for quote in response.css('div.quote'):
+        
+        if len(response.css('div.supplier-article-top-section h1').getall())>0:
+            contacts = response.css('p.contact-container::text').getall();
             yield {
-                'text': quote.css('span.text::text').get(),
-                'author': quote.css('small.author::text').get(),
-                'tags': quote.css('div.tags a.tag::text').getall(),
+                'name': response.css("div.supplier-article-top-section h1::text").get(),
+                'email':re.findall("\w+@\w+.\w+",str(contacts)),
+                'phone':re.findall("\+[0-9\-\(\)]*",str(contacts)),
+                'description' : response.css('div.content-container p').getall()[0][0:50]
             }
-        self.log(f'Saved file {filename}')
+
+        
+        
+        for quote in response.css('div.articleblock__content'):
+            next_page = quote.css('.articleblock__content__infobar a::attr(href)')[1].get()
+            if next_page is not None:
+                #next_page = response.urljoin(next_page)
+                yield scrapy.Request(next_page, callback=self.parse)
+        self.index = self.index +1
+        if(self.index<self.max):
+            yield scrapy.Request(self.page_url_pattern.format(page=self.index), callback=self.parse)
+        
