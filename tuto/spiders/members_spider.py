@@ -4,10 +4,9 @@ import json
 from bs4 import BeautifulSoup
 class QuotesSprider(scrapy.Spider):
 
-    name = "quotes"
-    allowed_domains=["horecava.nl"]
-    page_url_pattern = "https://www.horecava.nl/leveranciers/page/{page}/"
-    max = 0
+    name = "members"
+    page_url_pattern = "https://www.fcsi.org/find-a-member-app/data/members.php?page={page}"
+    max = 1
     index = 1
     start_urls = [
         page_url_pattern.format(page=1)
@@ -31,12 +30,8 @@ class QuotesSprider(scrapy.Spider):
 
     def parse(self, response):
         
-        for quote in response.css('div.articleblock__content'):
-            next_page = quote.css('.articleblock__content__infobar a::attr(href)')[1].get()
-            if next_page is not None:
-                #next_page = response.urljoin(next_page)
-                yield scrapy.Request(next_page, callback=self.parse_article)
-
+        data = json.loads(response.text)
+        yield data
         self.index = self.index +1
         if(self.index<self.max):
             yield scrapy.Request(self.page_url_pattern.format(page=self.index), callback=self.parse)
