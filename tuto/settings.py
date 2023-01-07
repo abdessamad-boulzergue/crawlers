@@ -63,7 +63,8 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'tuto.pipelines.TutoPipeline': 300,
+    'tuto.pipelines.MapPipeline': 200,
+     'tuto.pipelines.TutoPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

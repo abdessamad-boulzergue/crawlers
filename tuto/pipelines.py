@@ -7,12 +7,16 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import json
+from scrapy.exceptions import NotConfigured
+from tuto.items import TutoItem
 
 class TutoPipeline:
+
+    
     def process_item(self, item, spider):       
        
           # calling dumps to create json data.
-        line = json.dumps(dict(item)) + "\n"  
+        line = json.dumps(item) + "\n"  
         self.file.write(line)
         return item
  
@@ -21,3 +25,9 @@ class TutoPipeline:
  
     def close_spider(self, spider):
         self.file.close()
+
+class MapPipeline:
+
+    def process_item(self, item, spider):       
+       
+        return TutoItem(quote=item['name'])
