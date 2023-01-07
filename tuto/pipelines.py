@@ -12,7 +12,7 @@ from tuto.items import Membertem
 
 class TutoPipeline:
 
-    csv_header = "country , Email , Food Facility Design , Management Advisory Services , MTC"
+    csv_header = "country , Name  , Food Facility Design , Management Advisory Services , MTC"
     csv_data_f = "\n {} , {} , {} , {} ,{}"
     def process_item(self, item, spider):       
        
@@ -38,14 +38,15 @@ class FilterPipeline:
             if v["Details"]["Country"] =="United States":
                 
                 det = v["Details"]
-                adv_serv ="Yes" if len(v['MAS'])>0 else "No"
-                food_design="Yes" if len(v["FFD"])>0 else "No"
-                divs= " ".join([getDivs(id) for id in v['Divs']])
-                name = (det['Lname'] + det['Fname']).replace(',',' ')
+                adv_serv    =  "Yes" if len(v['MAS'])>0 else "No"
+                food_design =  "Yes" if len(v["FFD"])>0 else "No"
+                divs = " ".join([getDivs(id) for id in v['Divs']])
+                name = " ".join([det['Lname'],det['Fname']]).replace(',',' ')
+                country = v["Details"]["Country"]
 
                 items.append(Membertem(
                     name = name,
-                    country = v["Details"]["Country"],
+                    country = country,
                     adv_serv = adv_serv,
                     food_design = food_design,
                     divs=divs
