@@ -29,5 +29,4 @@ class TutoPipeline:
 class MapPipeline:
 
     def process_item(self, item, spider):       
-       
-        return TutoItem(quote=item['name'])
+       return item
